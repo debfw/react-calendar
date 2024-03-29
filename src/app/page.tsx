@@ -3,46 +3,75 @@ import { useState } from "react";
 import { data } from "./asset/data";
 
 export default function Home() {
-  const [firstDate, setFirstDate] = useState("");
-  const [secondDate, setSecondDate] = useState("");
+  const [startDateId, setStartDateId] = useState("");
+  const [endDateId, setEndDateId] = useState("");
+  const [isSelected, setIsSelected] = useState(false);
+  const todayDateString = `${new Date().getDate()}日`;
 
-  const handleSelectDate = (date: string) => {
-    if (firstDate === "") {
-      setFirstDate(date);
-    } else if (secondDate === "") {
-      setSecondDate(date);
+  const isSelectedDateId = (id: string) => {
+    const startIndex = data.findIndex((date) => date.id === startDateId);
+    const endIndex = data.findIndex((date) => date.id === endDateId);
+    const currentId = data.findIndex((date) => date.id === id);
+    return currentId >= startIndex && currentId <= endIndex;
+  };
+  const handleSelectDate = (id: string) => {
+    if (!startDateId) {
+      setStartDateId(id);
+    } else if (!endDateId) {
+      setEndDateId(id);
+      setIsSelected(true);
     } else {
-      setFirstDate(date);
-      setSecondDate("");
+      setStartDateId(id);
+      setEndDateId("");
+      setIsSelected(false);
     }
   };
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-white">
-      <table className="w-[350px] h-[240px] text-base">
-        <div className="absolute w-[350px] justify-between flex">
-          <button className="w-11 h-11 hover:bg-gray-200"> ＜</button>{" "}
+      <div className="flex flex-col items-center justify-center w-[350px] h-[240px] relative">
+        <div className="flex justify-between w-[350px] absolute top-0 ">
+          <button className="w-11 h-11 hover:bg-gray-200"> ＜</button>
           <button className="w-11 h-11 hover:bg-gray-200">＞</button>
         </div>
-        <tr className="w-[350px] h-[44px] mb-[16] justify-center flex">
-          <th>2022年7月</th>
-        </tr>
-        <tr>
-          {data.map((date, index) => {
-            let selectedDate = date === firstDate || date === secondDate;
+        <div className="text-base mb-4">2022年7月</div>
+        <div className="grid grid-cols-7 ">
+          {data.map(({ id, name }) => {
+            const isInSelectedRange = isSelectedDateId(id);
+            const isSelectedStart = id === startDateId;
+            const isSelectedEnd = id === endDateId;
+            const isToday = name === todayDateString;
+            const isNotCurrentMonthDate = ["1", "2", "3", "4"].includes(id);
             return (
-              <button
-                key={index}
-                className={`w-11 h-11 ${
-                  selectedDate ? "bg-blue-600" : "bg-white"
-                } hover:bg-gray-200`}
-                onClick={() => handleSelectDate(date)}
+              <div
+                key={id}
+                className={`w-[50px] h-[36px] flex justify-center items-center ${
+                  isSelectedStart || isSelectedEnd || isInSelectedRange
+                    ? "bg-blue-600"
+                    : isToday && !isNotCurrentMonthDate
+                    ? "bg-[#ffff76]"
+                    : "hover:bg-gray-200"
+                } ${
+                  isNotCurrentMonthDate
+                    ? "text-[#757575] bg-white hover:bg-white"
+                    : ""
+                }`}
               >
-                <th>{date}</th>
-              </button>
+                <button
+                  onClick={() => handleSelectDate(id)}
+                  className={`${
+                    isNotCurrentMonthDate
+                      ? "cursor-not-allowed bg-white"
+                      : ""
+                  }`}
+                >
+                  {name}
+                </button>
+              </div>
             );
           })}
-        </tr>
-      </table>
+        </div>
+      </div>
     </main>
   );
 }
