@@ -14,10 +14,12 @@ export default function Home() {
     const currentId = data.findIndex((date) => date.id === id);
     return currentId >= startIndex && currentId <= endIndex;
   };
+
   const handleSelectDate = (id: string) => {
+    const isEndDate = Number(id) > Number(startDateId);
     if (!startDateId) {
       setStartDateId(id);
-    } else if (!endDateId) {
+    } else if (!endDateId && isEndDate) {
       setEndDateId(id);
       setIsSelected(true);
     } else {
@@ -26,6 +28,8 @@ export default function Home() {
       setIsSelected(false);
     }
   };
+
+
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-white">
@@ -59,10 +63,11 @@ export default function Home() {
               >
                 <button
                   onClick={() => handleSelectDate(id)}
+                  data-testid={`${id}`}
                   className={`${
                     isNotCurrentMonthDate
                       ? "cursor-not-allowed bg-white"
-                      : ""
+                      : "testId"
                   }`}
                 >
                   {name}
